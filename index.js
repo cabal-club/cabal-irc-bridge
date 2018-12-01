@@ -15,6 +15,9 @@ var usage = `Usage
     --ircServer
     --ircChannel
     --ircNick
+    --ircUserName
+    --ircPassword
+    --ircDebug true|false
     --key
     --db
     --cabalChannel
@@ -27,6 +30,9 @@ var storage = args.db
 var ircServer = args.ircServer
 var ircChannel = args.ircChannel
 var ircNick = args.ircNick || 'cabal-bridge'
+var ircUserName = args.ircUserName
+var ircPassword = args.ircPassword
+var ircDebug = args.ircDebug
 
 var cabalChannel = args.cabalChannel || 'default'
 var cabalNick = args.cabalNick || 'irc-bridge'
@@ -36,14 +42,22 @@ if (!key || !storage || !ircServer || !ircChannel) {
   process.exit(1)
 }
 
-console.log('➤ Bridge started: ' + key.substr(0, 8) + '… with ' + ircChannel)
+console.log('➤ Cabal/IRC bridge started: ' + key.substr(0, 8) + '… with ' + ircChannel)
 
 var ircClient = new irc.Client(ircServer, ircNick, {
-  channels: [ircChannel]
+  autoRejoin: true,
+  channels: [],
+  debug: !!ircDebug,
+  floodProtection: true,
+  password: ircPassword,
+  realName: 'Cabal/IRC message bridge bot',
+  retryCount: 5,
+  showErrors: true,
+  userName: ircUserName
 })
 
 ircClient.addListener('error', function (message) {
-  console.log('irc error: ', message)
+  console.log('==> IRC Error: ', message)
 })
 
 var cabalUsers = {}
@@ -65,7 +79,7 @@ cabal.db.ready(() => {
       var text = message.value.content.text
       // Omit relaying messages published by the bridge
       if (message.key !== localUserKey) {
-        ircClient.say(ircChannel, '<' + keyToNick(message.key) + '> ' + text)
+        ircClient.say(ircChannel, irc.colors.wrap(irc.colors.codes.dark_green, '<' + keyToNick(message.key) + '> ') + text)
       }
     }
   })
@@ -95,16 +109,27 @@ cabal.db.ready(() => {
     })
   })
 
-  ircClient.addListener('message', function (from, to, message) {
-    cabal.publish({
-      type: 'chat/text',
-      content: {
-        channel: cabalChannel,
-        text: '<' + from + '> ' + message
-      }
+  ircClient.join(ircChannel, function () {
+    var startupMessage = '➤ Cabal/IRC bridge started'
+    ircClient.say(ircChannel, startupMessage)
+    sendCabalMessage(startupMessage)
+
+    ircClient.addListener('message', function (from, to, message) {
+      message = '<' + from + '> ' + message
+      sendCabalMessage(message)
     })
   })
 })
+
+function sendCabalMessage (message) {
+  cabal.publish({
+    type: 'chat/text',
+    content: {
+      channel: cabalChannel,
+      text: message
+    }
+  })
+}
 
 function keyToNick (key) {
   var user = cabalUsers[key]
