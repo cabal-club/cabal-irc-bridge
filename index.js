@@ -4,6 +4,12 @@ var Cabal = require('cabal-core')
 var swarm = require('cabal-core/swarm.js')
 var irc = require('irc')
 var minimist = require('minimist')
+var os = require("os")
+
+var homedir = os.homedir()
+var rootdir = homedir + `/.cabal/v${Cabal.databaseVersion}`
+var rootconfig = `${rootdir}/config.yml`
+var archivesdir = `${rootdir}/archives/`
 
 var args = minimist(process.argv.slice(2))
 
@@ -19,13 +25,12 @@ var usage = `Usage
     --ircPassword
     --ircDebug true|false
     --key
-    --db
     --cabalChannel
     --cabalNick
 `
 
-var key = args.key
-var storage = args.db
+var key = args.key.replace('cabal://', '').replace('cbl://', '').replace('dat://', '').replace(/\//g, '')
+var storage = archivesdir + key
 
 var ircServer = args.ircServer
 var ircChannel = args.ircChannel
@@ -37,7 +42,7 @@ var ircDebug = args.ircDebug
 var cabalChannel = args.cabalChannel || 'default'
 var cabalNick = args.cabalNick || 'irc-bridge'
 
-if (!key || !storage || !ircServer || !ircChannel) {
+if (!key || !ircServer || !ircChannel) {
   console.log(usage)
   process.exit(1)
 }
