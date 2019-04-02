@@ -15,7 +15,7 @@ var args = minimist(process.argv.slice(2))
 
 var usage = `Usage
 
-  cabal-irc-bridge --key cabal://key --db path/to/db --cabalChannel default --cabalNick irc-bridge  --ircServer irc.freenode.net --ircChannel "#cabal-club" --ircNick cabal-bridge
+  cabal-irc-bridge --key cabal://key --cabalChannel default --cabalNick irc-bridge  --ircServer irc.freenode.net --ircChannel "#cabal-club" --ircNick cabal-bridge
 
   Options:
     --ircServer
