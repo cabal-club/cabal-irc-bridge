@@ -9,7 +9,7 @@
   "author": "nikolaiwarner",
   "license": "MIT",
   "dependencies": {
-    "cabal-core": "^5.0.1",
+    "cabal-client": "^7.2.2",
     "irc": "^0.5.2"
   },
   "devDependencies": {
