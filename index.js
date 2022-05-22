@@ -39,7 +39,7 @@ if (!key || !ircServer || !ircChannel) {
   process.exit(1)
 }
 
-var cabalClient = new Client()
+var cabalClient = new Client({config: { temp: false }})
 cabalClient.addCabal(key).then((cabalDetails) => {
   cabalDetails.publishNick(cabalNick)
 
