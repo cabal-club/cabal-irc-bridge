@@ -3,7 +3,6 @@
 var Client = require('cabal-client')
 var irc = require('irc')
 var minimist = require('minimist')
-var os = require("os")
 
 var args = minimist(process.argv.slice(2))
 
@@ -84,7 +83,7 @@ cabalClient.addCabal(key).then((cabalDetails) => {
     retryCount: 5,
     showErrors: true,
     userName: ircUserName,
-    autoConnect: false,
+    autoConnect: false
   })
 
   ircClient.connect(() => {
@@ -99,7 +98,7 @@ cabalClient.addCabal(key).then((cabalDetails) => {
       })
     })
 
-    const startupMessage = '➤ Cabal/IRC bridge started: ' + key.substr(0, 8) + '… with ' + ircChannel;
+    const startupMessage = '➤ Cabal/IRC bridge started: ' + key.substr(0, 8) + '… with ' + ircChannel
     console.log(startupMessage)
     ircClient.say(ircChannel, startupMessage)
     sendCabalMessage(startupMessage)
